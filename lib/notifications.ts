@@ -71,7 +71,8 @@ export class NotificationManager {
       body: `${businessName}\nSipariş No: #${orderNumber}\nTutar: ${amount.toFixed(2)} TL`,
       tag: `order-${orderNumber}`,
       requireInteraction: true,
-      vibrate: [200, 100, 200]
+      // vibrate: [200, 100, 200]
+
     });
   }
 }
