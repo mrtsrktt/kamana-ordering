@@ -909,6 +909,30 @@ export default function Home() {
                 </div>
             </div>
 
+            {/* Footer - Adres Bilgisi */}
+            <div className="max-w-2xl mx-auto px-4 mt-8 mb-4">
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                    <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-8 h-8 bg-kamana-primary/10 rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-kamana-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-xs font-semibold text-kamana-text mb-1">Kamana Pastanesi</h3>
+                            <p className="text-xs text-gray-600 leading-relaxed">
+                                Küçükbakkalköy Mahallesi, Dudullu Caddesi No:45/A<br />
+                                Ataşehir, İstanbul
+                            </p>
+                            <p className="text-xs text-gray-500 mt-2">
+                                📞 0533-197-9632
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Sticky Bottom Cart Bar */}
             {cart.length > 0 && (
                 <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 shadow-lg z-20">
