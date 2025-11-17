@@ -9,3 +9,5 @@ out
 .netlify
 data/orders.json
 public/uploads/
+
+/lib/generated/prisma

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getProducts, initializeProducts } from '../../lib/redis';
+import { getProducts, initializeProducts } from '../../lib/db';
 import { products as defaultProducts } from '../../lib/products';
 
 export default async function handler(

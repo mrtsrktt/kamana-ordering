@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { products as defaultProducts } from '../../../lib/products';
-import { getProducts, setProducts, initializeProducts } from '../../../lib/redis';
+import { getProducts, setProducts, initializeProducts } from '../../../lib/db';
 
 export default async function handler(
   req: NextApiRequest,
