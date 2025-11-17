@@ -879,17 +879,7 @@ export default function Home() {
                                         <span className="text-[9px] text-gray-400">/ adet</span>
                                     </div>
 
-                                    {/* Ticari Bilgiler */}
-                                    {(product.minOrderText || product.suggestionText) && (
-                                        <div className="mb-1 space-y-0.5">
-                                            {product.minOrderText && (
-                                                <p className="text-[10px] text-gray-500 leading-tight">{product.minOrderText}</p>
-                                            )}
-                                            {product.suggestionText && (
-                                                <p className="text-[10px] text-gray-400 leading-tight">{product.suggestionText}</p>
-                                            )}
-                                        </div>
-                                    )}
+
 
                                     {/* Adet Kontrol */}
                                     <div className="flex items-center justify-center gap-1 mb-1">

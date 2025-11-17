@@ -538,27 +538,7 @@ export default function Products() {
                   </div>
                 </div>
 
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Minimum Sipariş Metni</label>
-                  <input
-                    type="text"
-                    value={formData.minOrderText}
-                    onChange={(e) => setFormData({...formData, minOrderText: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-                    placeholder="Örn: Minimum: 6 adet"
-                  />
-                </div>
 
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Öneri Metni</label>
-                  <input
-                    type="text"
-                    value={formData.suggestionText}
-                    onChange={(e) => setFormData({...formData, suggestionText: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-                    placeholder="Örn: Cafeler için günlük öneri: 12–18 adet"
-                  />
-                </div>
 
                 <div className="sm:col-span-2">
                   <label className="flex items-center gap-2">
