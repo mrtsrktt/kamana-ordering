@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { products } from '../lib/products';
+import { Product } from '../lib/products';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -12,6 +12,8 @@ interface CartItem {
 }
 
 export default function Home() {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [productsLoading, setProductsLoading] = useState(true);
     const [cart, setCart] = useState<CartItem[]>([]);
     const [showOrderSummary, setShowOrderSummary] = useState(false);
     const [showCheckout, setShowCheckout] = useState(false);
@@ -29,7 +31,29 @@ export default function Home() {
     const [orderData, setOrderData] = useState<any>(null);
     const [hasLastOrder, setHasLastOrder] = useState(false);
 
-    const activeProducts = products.filter(p => p.is_active);
+    const activeProducts = products;
+
+    // Fetch products from API
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                setProductsLoading(true);
+                const response = await fetch('/api/products');
+                if (response.ok) {
+                    const data = await response.json();
+                    setProducts(data);
+                } else {
+                    console.error('Failed to fetch products');
+                }
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            } finally {
+                setProductsLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
 
     // LocalStorage'dan son siparişi kontrol et (client-side only)
     useEffect(() => {
@@ -789,7 +813,15 @@ export default function Home() {
 
                 {/* Product Cards - 2 Sütunlu Grid */}
                 <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3">
-                    {activeProducts.map(product => {
+                    {productsLoading ? (
+                        <div className="col-span-2 md:col-span-3 text-center py-12">
+                            <p className="text-gray-500">Ürünler yükleniyor...</p>
+                        </div>
+                    ) : activeProducts.length === 0 ? (
+                        <div className="col-span-2 md:col-span-3 text-center py-12">
+                            <p className="text-gray-500">Henüz ürün bulunmuyor</p>
+                        </div>
+                    ) : activeProducts.map(product => {
                         const qty = getQuantity(product.id);
                         const isInCart = qty > 0;
 

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '../../components/AdminLayout';
-import { products as initialProducts } from '../../lib/products';
 import { AuthManager } from '../../lib/auth';
 
 interface Product {
@@ -27,6 +26,7 @@ export default function Products() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
@@ -41,8 +41,27 @@ export default function Products() {
     stock: undefined
   });
 
+  // Fetch products from API
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/admin/products');
+      if (response.ok) {
+        const data = await response.json();
+        setProducts(data);
+      } else {
+        alert('Ürünler yüklenemedi');
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      alert('Bir hata oluştu');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    setProducts(initialProducts as Product[]);
+    fetchProducts();
   }, []);
 
   useEffect(() => {
@@ -99,39 +118,98 @@ export default function Products() {
     setEditingProduct(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (editingProduct) {
-      setProducts(products.map(p => 
-        p.id === editingProduct.id ? { ...p, ...formData } as Product : p
-      ));
-    } else {
-      const newProduct: Product = {
-        ...formData as Product,
-        id: Date.now().toString()
-      };
-      setProducts([...products, newProduct]);
+    try {
+      setLoading(true);
+      
+      if (editingProduct) {
+        // Update existing product
+        const response = await fetch('/api/admin/products', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: editingProduct.id, ...formData })
+        });
+        
+        if (response.ok) {
+          await fetchProducts();
+          closeModal();
+        } else {
+          alert('Ürün güncellenemedi');
+        }
+      } else {
+        // Create new product
+        const response = await fetch('/api/admin/products', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+          await fetchProducts();
+          closeModal();
+        } else {
+          alert('Ürün eklenemedi');
+        }
+      }
+    } catch (error) {
+      console.error('Error saving product:', error);
+      alert('Bir hata oluştu');
+    } finally {
+      setLoading(false);
     }
-    
-    closeModal();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (!AuthManager.hasPermission('canDeleteProducts')) {
       alert('Bu işlem için yetkiniz yok');
       return;
     }
     
     if (confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
-      setProducts(products.filter(p => p.id !== id));
+      try {
+        setLoading(true);
+        const response = await fetch('/api/admin/products', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        
+        if (response.ok) {
+          await fetchProducts();
+        } else {
+          alert('Ürün silinemedi');
+        }
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Bir hata oluştu');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  const toggleActive = (id: string) => {
-    setProducts(products.map(p => 
-      p.id === id ? { ...p, is_active: !p.is_active } : p
-    ));
+  const toggleActive = async (id: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/admin/products', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, action: 'toggle' })
+      });
+      
+      if (response.ok) {
+        await fetchProducts();
+      } else {
+        alert('Durum değiştirilemedi');
+      }
+    } catch (error) {
+      console.error('Error toggling product:', error);
+      alert('Bir hata oluştu');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
