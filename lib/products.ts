@@ -5,9 +5,11 @@ export interface Product {
   price: number;
   image: string;
   is_active: boolean;
-  minOrderText?: string;
-  suggestionText?: string;
-  minOrderQty?: number;
+  minOrderText?: string | null;
+  suggestionText?: string | null;
+  minOrderQty?: number | null;
+  category?: string | null;
+  stock?: number | null;
 }
 
 export const products: Product[] = [
