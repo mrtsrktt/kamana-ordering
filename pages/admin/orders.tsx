@@ -128,20 +128,47 @@ export default function Orders() {
     setFilteredOrders(filtered);
   };
 
-  const updateOrderStatus = (orderNumber: string, newStatus: OrderStatus) => {
-    setOrders(orders.map(order => 
-      order.orderNumber === orderNumber 
-        ? { ...order, status: newStatus }
-        : order
-    ));
+  const updateOrderStatus = async (orderNumber: string, newStatus: OrderStatus) => {
+    try {
+      const response = await fetch('/api/orders/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderNumber, status: newStatus })
+      });
+
+      if (response.ok) {
+        setOrders(orders.map(order => 
+          order.orderNumber === orderNumber 
+            ? { ...order, status: newStatus }
+            : order
+        ));
+      } else {
+        alert('Durum güncellenemedi');
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      alert('Bir hata oluştu');
+    }
   };
 
-  const updateAdminNotes = (orderNumber: string, notes: string) => {
-    setOrders(orders.map(order => 
-      order.orderNumber === orderNumber 
-        ? { ...order, adminNotes: notes }
-        : order
-    ));
+  const updateAdminNotes = async (orderNumber: string, notes: string) => {
+    try {
+      const response = await fetch('/api/orders/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderNumber, adminNotes: notes })
+      });
+
+      if (response.ok) {
+        setOrders(orders.map(order => 
+          order.orderNumber === orderNumber 
+            ? { ...order, adminNotes: notes }
+            : order
+        ));
+      }
+    } catch (error) {
+      console.error('Error updating notes:', error);
+    }
   };
 
   const formatDate = (dateString: string) => {
