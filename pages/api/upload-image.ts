@@ -1,7 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import formidable from 'formidable';
+import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
-import path from 'path';
+
+// Cloudinary config
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export const config = {
   api: {
@@ -18,24 +25,11 @@ export default async function handler(
   }
 
   try {
-    // Public/uploads klasörünü oluştur
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-
     const form = formidable({
-      uploadDir: uploadsDir,
-      keepExtensions: true,
       maxFileSize: 5 * 1024 * 1024, // 5MB
-      filename: (name, ext, part) => {
-        // Benzersiz dosya adı oluştur
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        return `product-${uniqueSuffix}${ext}`;
-      }
     });
 
-    form.parse(req, (err, fields, files) => {
+    form.parse(req, async (err, fields, files) => {
       if (err) {
         console.error('Upload error:', err);
         return res.status(500).json({ message: 'Upload failed', error: err.message });
@@ -48,13 +42,25 @@ export default async function handler(
 
       // Dosya yolunu al (array veya tek dosya olabilir)
       const uploadedFile = Array.isArray(file) ? file[0] : file;
-      const filename = path.basename(uploadedFile.filepath);
-      const imageUrl = `/uploads/${filename}`;
+      
+      try {
+        // Cloudinary'ye yükle
+        const result = await cloudinary.uploader.upload(uploadedFile.filepath, {
+          folder: 'kamana-products',
+          resource_type: 'image',
+        });
 
-      res.status(200).json({ 
-        success: true, 
-        imageUrl 
-      });
+        // Geçici dosyayı sil
+        fs.unlinkSync(uploadedFile.filepath);
+
+        res.status(200).json({ 
+          success: true, 
+          imageUrl: result.secure_url 
+        });
+      } catch (uploadError) {
+        console.error('Cloudinary upload error:', uploadError);
+        return res.status(500).json({ message: 'Cloudinary upload failed' });
+      }
     });
   } catch (error) {
     console.error('Error:', error);

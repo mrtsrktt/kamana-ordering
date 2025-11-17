@@ -498,21 +498,44 @@ export default function Products() {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Görsel URL *</label>
-                  <input
-                    type="url"
-                    value={formData.image}
-                    onChange={(e) => setFormData({...formData, image: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-                    placeholder="https://images.unsplash.com/photo-..."
-                    required
-                  />
-                  {formData.image && (
-                    <div className="mt-2 relative w-32 h-32 rounded-lg overflow-hidden border border-gray-200">
-                      <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                  <p className="text-xs text-gray-500 mt-1">Unsplash, Imgur veya başka bir görsel URL'i girin</p>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Ürün Görseli *</label>
+                  <div className="space-y-2">
+                    {formData.image && (
+                      <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-gray-200">
+                        <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const uploadFormData = new FormData();
+                          uploadFormData.append('image', file);
+                          
+                          try {
+                            const response = await fetch('/api/upload-image', {
+                              method: 'POST',
+                              body: uploadFormData
+                            });
+                            
+                            if (response.ok) {
+                              const data = await response.json();
+                              setFormData(prev => ({...prev, image: data.imageUrl}));
+                            } else {
+                              alert('Görsel yüklenemedi');
+                            }
+                          } catch (error) {
+                            console.error('Upload error:', error);
+                            alert('Bir hata oluştu');
+                          }
+                        }
+                      }}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+                    />
+                    <p className="text-xs text-gray-500">PNG, JPG veya JPEG (Max 5MB)</p>
+                  </div>
                 </div>
 
 
