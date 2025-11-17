@@ -511,25 +511,28 @@ export default function Products() {
                       onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          const uploadFormData = new FormData();
-                          uploadFormData.append('image', file);
-                          
-                          try {
-                            const response = await fetch('/api/upload-image', {
-                              method: 'POST',
-                              body: uploadFormData
-                            });
-                            
-                            if (response.ok) {
-                              const data = await response.json();
-                              setFormData(prev => ({...prev, image: data.imageUrl}));
-                            } else {
-                              alert('Görsel yüklenemedi');
+                          // Base64'e çevir
+                          const reader = new FileReader();
+                          reader.onloadend = async () => {
+                            try {
+                              const response = await fetch('/api/upload-image', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ image: reader.result })
+                              });
+                              
+                              if (response.ok) {
+                                const data = await response.json();
+                                setFormData(prev => ({...prev, image: data.imageUrl}));
+                              } else {
+                                alert('Görsel yüklenemedi');
+                              }
+                            } catch (error) {
+                              console.error('Upload error:', error);
+                              alert('Bir hata oluştu');
                             }
-                          } catch (error) {
-                            console.error('Upload error:', error);
-                            alert('Bir hata oluştu');
-                          }
+                          };
+                          reader.readAsDataURL(file);
                         }
                       }}
                       className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
