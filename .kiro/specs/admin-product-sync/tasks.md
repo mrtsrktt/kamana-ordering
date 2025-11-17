@@ -116,6 +116,7 @@
 
 - [x] 8. Deploy and test
 
+
   - [x] 8.1 Deploy to Vercel
 
     - Push changes to git repository
