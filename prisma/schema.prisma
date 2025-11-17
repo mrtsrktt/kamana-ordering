@@ -44,3 +44,25 @@ model Settings {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model Order {
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique
+  businessName    String
+  businessType    String
+  phone           String
+  email           String?
+  address         String
+  deliveryDate    String
+  deliveryOption  String
+  items           Json
+  subtotal        Float
+  notes           String?
+  status          String   @default("pending")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([orderNumber])
+  @@index([status])
+  @@index([createdAt])
+}
