@@ -1,4 +1,4 @@
-import { put, head } from '@vercel/blob';
+import { put, list } from '@vercel/blob';
 import { Product } from './products';
 
 const BLOB_NAME = 'products.json';
@@ -8,16 +8,15 @@ const BLOB_NAME = 'products.json';
  */
 export async function getProducts(): Promise<Product[]> {
   try {
-    const response = await fetch(`https://blob.vercel-storage.com/${BLOB_NAME}`, {
-      headers: {
-        'Authorization': `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`
-      }
-    });
+    // List blobs to find our products file
+    const { blobs } = await list({ prefix: BLOB_NAME });
     
-    if (!response.ok) {
+    if (blobs.length === 0) {
       return [];
     }
     
+    // Fetch the blob content
+    const response = await fetch(blobs[0].url);
     const products = await response.json();
     return products || [];
   } catch (error) {
@@ -31,10 +30,11 @@ export async function getProducts(): Promise<Product[]> {
  */
 export async function setProducts(products: Product[]): Promise<void> {
   try {
-    await put(BLOB_NAME, JSON.stringify(products), {
+    const blob = await put(BLOB_NAME, JSON.stringify(products), {
       access: 'public',
       addRandomSuffix: false,
     });
+    console.log('Products saved to blob:', blob.url);
   } catch (error) {
     console.error('Blob setProducts error:', error);
     throw new Error('Failed to save products to storage');
