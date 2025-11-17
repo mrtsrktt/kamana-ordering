@@ -35,7 +35,7 @@ export default function Dashboard() {
 
   const loadData = async () => {
     try {
-      const response = await fetch('/api/orders/list');
+      const response = await fetch('/api/orders');
       const orders: Order[] = await response.json();
       calculateStats(orders);
     } catch (error) {
