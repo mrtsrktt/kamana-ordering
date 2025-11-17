@@ -470,7 +470,7 @@ export default function Home() {
                         <p className="text-sm text-gray-600 mb-3 text-center">Acil durumlarda aşağıdaki butonlardan bize ulaşabilirsiniz</p>
                         <div className="grid grid-cols-2 gap-3">
                             <a
-                                href={`tel:+${settings?.phone || '905331979632'}`}
+                                href={`tel:${settings?.phone || '05331979632'}`}
                                 className="flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-full text-sm font-medium hover:bg-green-700 transition-colors"
                             >
                                 <span>📞</span>
@@ -796,7 +796,7 @@ export default function Home() {
                     {/* İletişim Butonları */}
                     <div className="grid grid-cols-2 gap-2.5">
                         <a
-                            href={`tel:+${settings?.phone || '905551234567'}`}
+                            href={`tel:${settings?.phone || '05551234567'}`}
                             className="flex items-center justify-center gap-2 bg-green-600 text-white py-2 rounded-full text-sm font-medium hover:bg-green-700"
                         >
                             <span>📞</span>
