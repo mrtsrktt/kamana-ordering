@@ -65,7 +65,7 @@ export default function Orders() {
 
   const loadOrders = async () => {
     try {
-      const response = await fetch('/api/orders/list');
+      const response = await fetch('/api/orders');
       const data = await response.json();
       
       const ordersWithStatus = data.map((order: Order) => ({
