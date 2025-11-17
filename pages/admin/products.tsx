@@ -16,7 +16,7 @@ interface Product {
   stock?: number;
 }
 
-const categories = ['Tatlılar', 'Pastalar', 'Hamur İşleri', 'Sütlü Tatlılar', 'Şerbetli Tatlılar'];
+const categories = ['Tatlılar', 'Pastalar', 'Hamur İşleri', 'Sütlü Tatlılar', 'Şerbetli Tatlılar', 'Kurabiye'];
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
