@@ -31,3 +31,16 @@ model Product {
   @@index([category])
   @@index([is_active])
 }
+
+model Settings {
+  id          String   @id @default(cuid())
+  businessName String  @default("Kamana Pastanesi")
+  phone       String   @default("05302347912")
+  whatsapp    String   @default("905302347912")
+  email       String   @default("info@kamana.com")
+  city        String   @default("Istanbul")
+  region      String   @default("Anadolu Yakası")
+  address     String   @default("Site, Atay Cad. No:42, 34760 Ümraniye/İstanbul")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

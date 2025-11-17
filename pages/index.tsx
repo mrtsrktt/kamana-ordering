@@ -11,9 +11,20 @@ interface CartItem {
     image?: string;
 }
 
+interface Settings {
+    businessName: string;
+    phone: string;
+    whatsapp: string;
+    email: string;
+    city: string;
+    region: string;
+    address: string;
+}
+
 export default function Home() {
     const [products, setProducts] = useState<Product[]>([]);
     const [productsLoading, setProductsLoading] = useState(true);
+    const [settings, setSettings] = useState<Settings | null>(null);
     const [cart, setCart] = useState<CartItem[]>([]);
     const [showOrderSummary, setShowOrderSummary] = useState(false);
     const [showCheckout, setShowCheckout] = useState(false);
@@ -33,26 +44,33 @@ export default function Home() {
 
     const activeProducts = products;
 
-    // Fetch products from API
+    // Fetch products and settings from API
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchData = async () => {
             try {
                 setProductsLoading(true);
-                const response = await fetch('/api/products');
-                if (response.ok) {
-                    const data = await response.json();
-                    setProducts(data);
-                } else {
-                    console.error('Failed to fetch products');
+                
+                // Fetch products
+                const productsResponse = await fetch('/api/products');
+                if (productsResponse.ok) {
+                    const productsData = await productsResponse.json();
+                    setProducts(productsData);
+                }
+                
+                // Fetch settings
+                const settingsResponse = await fetch('/api/settings');
+                if (settingsResponse.ok) {
+                    const settingsData = await settingsResponse.json();
+                    setSettings(settingsData);
                 }
             } catch (error) {
-                console.error('Error fetching products:', error);
+                console.error('Error fetching data:', error);
             } finally {
                 setProductsLoading(false);
             }
         };
 
-        fetchProducts();
+        fetchData();
     }, []);
 
     // LocalStorage'dan son siparişi kontrol et (client-side only)
@@ -452,14 +470,14 @@ export default function Home() {
                         <p className="text-sm text-gray-600 mb-3 text-center">Acil durumlarda aşağıdaki butonlardan bize ulaşabilirsiniz</p>
                         <div className="grid grid-cols-2 gap-3">
                             <a
-                                href="tel:+905331979632"
+                                href={`tel:+${settings?.phone || '905331979632'}`}
                                 className="flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-full text-sm font-medium hover:bg-green-700 transition-colors"
                             >
                                 <span>📞</span>
                                 <span>Telefon</span>
                             </a>
                             <a
-                                href="https://wa.me/905331979632"
+                                href={`https://wa.me/${settings?.whatsapp || '905331979632'}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center justify-center gap-2 bg-green-500 text-white py-3 rounded-full text-sm font-medium hover:bg-green-600 transition-colors"
@@ -747,7 +765,7 @@ export default function Home() {
                 </div>
                 <div className="bg-kamana-secondary py-2 px-4">
                     <p className="text-xs text-center text-gray-600 max-w-2xl mx-auto">
-                        Teslimat: İstanbul Anadolu Yakası
+                        Teslimat: {settings?.city || 'İstanbul'} {settings?.region || 'Anadolu Yakası'}
                     </p>
                 </div>
             </div>
@@ -778,14 +796,14 @@ export default function Home() {
                     {/* İletişim Butonları */}
                     <div className="grid grid-cols-2 gap-2.5">
                         <a
-                            href="tel:+905551234567"
+                            href={`tel:+${settings?.phone || '905551234567'}`}
                             className="flex items-center justify-center gap-2 bg-green-600 text-white py-2 rounded-full text-sm font-medium hover:bg-green-700"
                         >
                             <span>📞</span>
                             <span>Telefon</span>
                         </a>
                         <a
-                            href="https://wa.me/905551234567"
+                            href={`https://wa.me/${settings?.whatsapp || '905551234567'}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center justify-center gap-2 bg-green-500 text-white py-2 rounded-full text-sm font-medium hover:bg-green-600"
@@ -910,28 +928,30 @@ export default function Home() {
             </div>
 
             {/* Footer - Adres Bilgisi */}
-            <div className="max-w-2xl mx-auto px-4 mt-8 mb-4">
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                    <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-8 h-8 bg-kamana-primary/10 rounded-full flex items-center justify-center">
-                            <svg className="w-4 h-4 text-kamana-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="text-xs font-semibold text-kamana-text mb-1">Kamana Pastanesi</h3>
-                            <p className="text-xs text-gray-600 leading-relaxed">
-                                Küçükbakkalköy Mahallesi, Dudullu Caddesi No:45/A<br />
-                                Ataşehir, İstanbul
-                            </p>
-                            <p className="text-xs text-gray-500 mt-2">
-                                📞 0533-197-9632
-                            </p>
+            {settings && (
+                <div className="max-w-2xl mx-auto px-4 mt-8 mb-4">
+                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                        <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0 w-8 h-8 bg-kamana-primary/10 rounded-full flex items-center justify-center">
+                                <svg className="w-4 h-4 text-kamana-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-xs font-semibold text-kamana-text mb-1">{settings.businessName}</h3>
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                    {settings.address}<br />
+                                    {settings.city}
+                                </p>
+                                <p className="text-xs text-gray-500 mt-2">
+                                    📞 {settings.phone}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* Sticky Bottom Cart Bar */}
             {cart.length > 0 && (
