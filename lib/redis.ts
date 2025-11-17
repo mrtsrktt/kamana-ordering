@@ -1,45 +1,57 @@
-import { kv } from '@vercel/kv';
+import { put, head } from '@vercel/blob';
 import { Product } from './products';
 
-const PRODUCTS_KEY = 'products';
+const BLOB_NAME = 'products.json';
 
 /**
- * Fetch all products from Redis
+ * Fetch all products from Vercel Blob
  */
 export async function getProducts(): Promise<Product[]> {
   try {
-    const products = await kv.get<Product[]>(PRODUCTS_KEY);
+    const response = await fetch(`https://blob.vercel-storage.com/${BLOB_NAME}`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`
+      }
+    });
+    
+    if (!response.ok) {
+      return [];
+    }
+    
+    const products = await response.json();
     return products || [];
   } catch (error) {
-    console.error('Redis getProducts error:', error);
-    throw new Error('Failed to fetch products from database');
+    console.error('Blob getProducts error:', error);
+    return [];
   }
 }
 
 /**
- * Save products array to Redis
+ * Save products array to Vercel Blob
  */
 export async function setProducts(products: Product[]): Promise<void> {
   try {
-    await kv.set(PRODUCTS_KEY, products);
+    await put(BLOB_NAME, JSON.stringify(products), {
+      access: 'public',
+      addRandomSuffix: false,
+    });
   } catch (error) {
-    console.error('Redis setProducts error:', error);
-    throw new Error('Failed to save products to database');
+    console.error('Blob setProducts error:', error);
+    throw new Error('Failed to save products to storage');
   }
 }
 
 /**
- * Initialize Redis with default products if empty
+ * Initialize Blob with default products if empty
  */
 export async function initializeProducts(defaultProducts: Product[]): Promise<void> {
   try {
-    const existing = await kv.get<Product[]>(PRODUCTS_KEY);
+    const existing = await getProducts();
     if (!existing || existing.length === 0) {
-      await kv.set(PRODUCTS_KEY, defaultProducts);
-      console.log('Redis initialized with default products');
+      await setProducts(defaultProducts);
+      console.log('Blob initialized with default products');
     }
   } catch (error) {
-    console.error('Redis initializeProducts error:', error);
-    throw new Error('Failed to initialize products in database');
+    console.error('Blob initializeProducts error:', error);
   }
 }
