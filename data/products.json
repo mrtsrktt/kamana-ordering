@@ -1,0 +1,24 @@
+[
+  {
+    "id": "1",
+    "name": "Magnolia",
+    "description": "250 ml",
+    "price": 65,
+    "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400",
+    "is_active": true,
+    "minOrderText": "Minimum: 6 adet",
+    "suggestionText": "Cafeler için günlük öneri: 12–18 adet",
+    "minOrderQty": 6
+  },
+  {
+    "id": "2",
+    "name": "Ekler (Classic)",
+    "description": "Klasik ekler",
+    "price": 30,
+    "image": "https://i.imgur.com/euYycMj.jpg",
+    "is_active": true,
+    "minOrderText": "Minimum: 12 adet",
+    "suggestionText": "Günlük raf önerisi: 24–36 adet",
+    "minOrderQty": 12
+  }
+]

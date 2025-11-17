@@ -7,5 +7,5 @@ out
 *.log
 .vercel
 .netlify
-data/
+data/orders.json
 public/uploads/
