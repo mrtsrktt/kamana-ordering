@@ -511,21 +511,24 @@ export default function Products() {
                       onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          // Base64'e çevir
                           const reader = new FileReader();
                           reader.onloadend = async () => {
                             try {
                               const response = await fetch('/api/upload-image', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ image: reader.result })
+                                body: JSON.stringify({ 
+                                  image: reader.result,
+                                  filename: file.name
+                                })
                               });
                               
                               if (response.ok) {
                                 const data = await response.json();
                                 setFormData(prev => ({...prev, image: data.imageUrl}));
                               } else {
-                                alert('Görsel yüklenemedi');
+                                const error = await response.json();
+                                alert('Görsel yüklenemedi: ' + (error.error || error.message));
                               }
                             } catch (error) {
                               console.error('Upload error:', error);

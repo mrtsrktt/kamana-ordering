@@ -1,12 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { v2 as cloudinary } from 'cloudinary';
+import { put } from '@vercel/blob';
 
-// Cloudinary config
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+};
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,21 +18,24 @@ export default async function handler(
   }
 
   try {
-    const { image } = req.body;
+    const { image, filename } = req.body;
 
     if (!image) {
       return res.status(400).json({ message: 'No image data' });
     }
 
-    // Cloudinary'ye base64 ile yükle
-    const result = await cloudinary.uploader.upload(image, {
-      folder: 'kamana-products',
-      resource_type: 'image',
+    // Base64'ten Buffer'a çevir
+    const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    // Vercel Blob'a yükle
+    const blob = await put(filename || `product-${Date.now()}.jpg`, buffer, {
+      access: 'public',
     });
 
     res.status(200).json({ 
       success: true, 
-      imageUrl: result.secure_url 
+      imageUrl: blob.url 
     });
   } catch (error: any) {
     console.error('Upload error:', error);
