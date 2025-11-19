@@ -36,6 +36,7 @@ export default async function handler(
       // Get default category
       const category = await prisma.category.findFirst();
       if (!category) {
+        console.error('No category found in database');
         return res.status(400).json({ message: 'No category found' });
       }
       
@@ -50,15 +51,21 @@ export default async function handler(
         .replace(/ö/g, 'o')
         .replace(/ç/g, 'c');
       
+      console.log('Creating product:', { name: req.body.name, slug, categoryId: category.id });
+      
       const newProduct = await prisma.product.create({
         data: {
           name: req.body.name,
           slug,
           description: req.body.description || '',
-          price: req.body.price,
+          price: parseFloat(req.body.price) || 0,
           imageUrl: req.body.image || '',
           isActive: req.body.is_active ?? true,
-          categoryId: category.id
+          categoryId: category.id,
+          minOrderQty: req.body.minOrderQty ? parseInt(req.body.minOrderQty) : null,
+          minOrderText: req.body.minOrderText || null,
+          suggestionText: req.body.suggestionText || null,
+          stock: req.body.stock ? parseInt(req.body.stock) : null
         },
         include: {
           Category: true
