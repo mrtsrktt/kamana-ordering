@@ -1,7 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Product } from '../lib/products';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  is_active: boolean;
+  minOrderText?: string;
+  suggestionText?: string;
+  minOrderQty?: number;
+  category?: string;
+  stock?: number;
+}
 
 interface CartItem {
     id: string;

@@ -16,7 +16,7 @@ export default async function handler(
     // Generate order code
     const orderCode = `ORD-${Date.now()}`;
     
-    // Siparişi Postgres'e kaydet
+    // Siparişi ve OrderItem'ları Postgres'e kaydet
     const order = await prisma.order.create({
       data: {
         code: orderCode,
@@ -29,7 +29,20 @@ export default async function handler(
         deliveryTimeText: orderData.deliveryDate,
         paymentType: PaymentType.CASH,
         totalAmount: orderData.subtotal,
-        status: OrderStatus.NEW
+        status: OrderStatus.NEW,
+        OrderItem: {
+          create: orderData.items.map((item: any) => ({
+            id: `${orderCode}-${item.id}`,
+            productId: item.id,
+            productNameSnapshot: item.name,
+            unitPriceSnapshot: item.price,
+            quantity: item.quantity,
+            note: null
+          }))
+        }
+      },
+      include: {
+        OrderItem: true
       }
     });
 
