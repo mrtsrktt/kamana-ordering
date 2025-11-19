@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getProducts, initializeProducts } from '../../lib/db';
-import { products as defaultProducts } from '../../lib/products';
+import { prisma } from '../../lib/prisma';
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,16 +10,32 @@ export default async function handler(
   }
 
   try {
-    // Initialize Redis with default products if empty
-    await initializeProducts(defaultProducts);
+    // Fetch active products from database
+    const products = await prisma.product.findMany({
+      where: {
+        isActive: true
+      },
+      include: {
+        Category: true
+      },
+      orderBy: {
+        createdAt: 'asc'
+      }
+    });
     
-    // Fetch all products from Redis
-    const allProducts = await getProducts();
+    // Transform to match frontend expectations
+    const transformedProducts = products.map(p => ({
+      id: p.id,
+      name: p.name,
+      description: p.description,
+      price: p.price,
+      image: p.imageUrl,
+      is_active: p.isActive,
+      category: p.Category.name,
+      slug: p.slug
+    }));
     
-    // Filter only active products for public endpoint
-    const activeProducts = allProducts.filter(p => p.is_active);
-    
-    return res.status(200).json(activeProducts);
+    return res.status(200).json(transformedProducts);
   } catch (error) {
     console.error('Products API error:', error);
     return res.status(500).json({ 

@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,55 +8,100 @@ datasource db {
 }
 
 model Product {
-  id              String   @id @default(cuid())
-  name            String
-  price           Float
-  image           String
-  category        String?
-  description     String?
-  is_active       Boolean  @default(true)
-  minOrderText    String?
-  suggestionText  String?
-  minOrderQty     Int?
-  stock           Int?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  description String
+  ingredients String?
+  price       Float
+  imageUrl    String
+  isActive    Boolean     @default(true)
+  isFeatured  Boolean     @default(false)
+  tags        String?
+  categoryId  String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  OrderItem   OrderItem[]
+  Category    Category    @relation(fields: [categoryId], references: [id])
 
-  @@index([category])
-  @@index([is_active])
+  @@index([categoryId])
+  @@index([isActive, isFeatured])
+  @@index([slug])
 }
 
 model Settings {
-  id          String   @id @default(cuid())
-  businessName String  @default("Kamana Pastanesi")
-  phone       String   @default("05302347912")
-  whatsapp    String   @default("905302347912")
-  email       String   @default("info@kamana.com")
-  city        String   @default("Istanbul")
-  region      String   @default("Anadolu Yakası")
-  address     String   @default("Site, Atay Cad. No:42, 34760 Ümraniye/İstanbul")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+
+  @@index([key])
 }
 
 model Order {
-  id              String   @id @default(cuid())
-  orderNumber     String   @unique
-  businessName    String
-  businessType    String
-  phone           String
-  email           String?
-  address         String
-  deliveryDate    String
-  deliveryOption  String
-  items           Json
-  subtotal        Float
-  notes           String?
-  status          String   @default("pending")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                 String       @id @default(cuid())
+  code               String       @unique
+  status             OrderStatus  @default(NEW)
+  customerName       String
+  customerPhone      String
+  customerEmail      String?
+  address            String
+  addressDescription String?
+  deliveryType       DeliveryType
+  deliveryTimeText   String?
+  paymentType        PaymentType
+  totalAmount        Float
+  sourceCampaign     String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  OrderItem          OrderItem[]
 
-  @@index([orderNumber])
   @@index([status])
   @@index([createdAt])
+  @@index([code])
+}
+
+model Category {
+  id           String    @id
+  name         String
+  slug         String    @unique
+  displayOrder Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime
+  Product      Product[]
+
+  @@index([displayOrder])
+  @@index([slug])
+}
+
+model OrderItem {
+  id                  String   @id
+  orderId             String
+  productId           String
+  productNameSnapshot String
+  unitPriceSnapshot   Float
+  quantity            Int
+  note                String?
+  createdAt           DateTime @default(now())
+  Order               Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  Product             Product  @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+}
+
+enum DeliveryType {
+  ASAP
+  SCHEDULED
+}
+
+enum OrderStatus {
+  NEW
+  PREPARING
+  ON_THE_WAY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentType {
+  CASH
+  CARD
 }
