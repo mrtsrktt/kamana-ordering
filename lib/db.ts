@@ -1,5 +1,15 @@
 import { prisma } from './prisma';
-import { Product } from './products';
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  is_active: boolean;
+  category?: string;
+  slug?: string;
+}
 
 /**
  * Fetch all products from Postgres using Prisma
@@ -7,21 +17,21 @@ import { Product } from './products';
 export async function getProducts(): Promise<Product[]> {
   try {
     const products = await prisma.product.findMany({
+      include: {
+        Category: true
+      },
       orderBy: { createdAt: 'asc' }
     });
     
     return products.map(p => ({
       id: p.id,
       name: p.name,
-      description: p.description || '',
+      description: p.description,
       price: p.price,
-      image: p.image,
-      is_active: p.is_active,
-      minOrderText: p.minOrderText,
-      suggestionText: p.suggestionText,
-      minOrderQty: p.minOrderQty,
-      category: p.category,
-      stock: p.stock
+      image: p.imageUrl,
+      is_active: p.isActive,
+      category: p.Category.name,
+      slug: p.slug
     }));
   } catch (error) {
     console.error('getProducts error:', error);
@@ -34,25 +44,8 @@ export async function getProducts(): Promise<Product[]> {
  */
 export async function setProducts(products: Product[]): Promise<void> {
   try {
-    // Clear existing products
-    await prisma.product.deleteMany();
-    
-    // Insert all products
-    await prisma.product.createMany({
-      data: products.map(p => ({
-        id: p.id,
-        name: p.name,
-        description: p.description || null,
-        price: p.price,
-        image: p.image,
-        is_active: p.is_active,
-        minOrderText: p.minOrderText || null,
-        suggestionText: p.suggestionText || null,
-        minOrderQty: p.minOrderQty || null,
-        category: p.category || null,
-        stock: p.stock || null
-      }))
-    });
+    // This function is deprecated - use admin API to manage products
+    console.warn('setProducts is deprecated');
   } catch (error) {
     console.error('setProducts error:', error);
     throw new Error('Failed to save products');
@@ -64,11 +57,8 @@ export async function setProducts(products: Product[]): Promise<void> {
  */
 export async function initializeProducts(defaultProducts: Product[]): Promise<void> {
   try {
-    const count = await prisma.product.count();
-    if (count === 0) {
-      await setProducts(defaultProducts);
-      console.log('Products initialized with default data');
-    }
+    // This function is deprecated - products should be seeded via seed script
+    console.log('initializeProducts is deprecated - use seed script');
   } catch (error) {
     console.error('initializeProducts error:', error);
   }
