@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '../../../lib/prisma';
+import { OrderStatus, DeliveryType, PaymentType } from '@prisma/client';
 
 export default async function handler(
   req: NextApiRequest,
@@ -12,21 +13,23 @@ export default async function handler(
   try {
     const orderData = req.body;
     
+    // Generate order code
+    const orderCode = `ORD-${Date.now()}`;
+    
     // Siparişi Postgres'e kaydet
     const order = await prisma.order.create({
       data: {
-        orderNumber: orderData.orderNumber,
-        businessName: orderData.businessName,
-        businessType: orderData.businessType,
-        phone: orderData.phone,
-        email: orderData.email || null,
+        code: orderCode,
+        customerName: orderData.businessName,
+        customerPhone: orderData.phone,
+        customerEmail: orderData.email || null,
         address: orderData.address,
-        deliveryDate: orderData.deliveryDate,
-        deliveryOption: orderData.deliveryOption,
-        items: orderData.items,
-        subtotal: orderData.subtotal,
-        notes: orderData.notes || null,
-        status: 'pending'
+        addressDescription: orderData.notes || null,
+        deliveryType: orderData.deliveryOption === 'asap' ? DeliveryType.ASAP : DeliveryType.SCHEDULED,
+        deliveryTimeText: orderData.deliveryDate,
+        paymentType: PaymentType.CASH,
+        totalAmount: orderData.subtotal,
+        status: OrderStatus.NEW
       }
     });
 

@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '../../../lib/prisma';
+import { OrderStatus } from '@prisma/client';
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,18 +11,34 @@ export default async function handler(
   }
 
   try {
-    const { orderNumber, status, adminNotes } = req.body;
+    const { orderNumber, orderCode, status, adminNotes } = req.body;
+    
+    const code = orderCode || orderNumber;
 
-    if (!orderNumber) {
-      return res.status(400).json({ message: 'Order number required' });
+    if (!code) {
+      return res.status(400).json({ message: 'Order code required' });
+    }
+
+    // Map old status to new enum
+    let newStatus: OrderStatus | undefined;
+    if (status) {
+      const statusMap: Record<string, OrderStatus> = {
+        'pending': OrderStatus.NEW,
+        'confirmed': OrderStatus.PREPARING,
+        'preparing': OrderStatus.PREPARING,
+        'on_the_way': OrderStatus.ON_THE_WAY,
+        'delivered': OrderStatus.DELIVERED,
+        'cancelled': OrderStatus.CANCELLED
+      };
+      newStatus = statusMap[status] || OrderStatus.NEW;
     }
 
     // Siparişi güncelle
     const order = await prisma.order.updateMany({
-      where: { orderNumber },
+      where: { code },
       data: {
-        status: status || undefined,
-        ...(adminNotes !== undefined && { notes: adminNotes })
+        status: newStatus || undefined,
+        ...(adminNotes !== undefined && { addressDescription: adminNotes })
       }
     });
 
