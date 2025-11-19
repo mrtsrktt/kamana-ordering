@@ -121,6 +121,12 @@ export default function Products() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Yetki kontrolü
+    if (!AuthManager.hasPermission('canEditProducts')) {
+      alert('Bu işlem için yetkiniz yok. Lütfen yönetici ile iletişime geçin.');
+      return;
+    }
+    
     try {
       setLoading(true);
       
@@ -136,7 +142,8 @@ export default function Products() {
           await fetchProducts();
           closeModal();
         } else {
-          alert('Ürün güncellenemedi');
+          const errorData = await response.json().catch(() => ({}));
+          alert(`Ürün güncellenemedi: ${errorData.message || 'Bilinmeyen hata'}`);
         }
       } else {
         // Create new product
@@ -150,12 +157,14 @@ export default function Products() {
           await fetchProducts();
           closeModal();
         } else {
-          alert('Ürün eklenemedi');
+          const errorData = await response.json().catch(() => ({}));
+          console.error('Product creation error:', errorData);
+          alert(`Ürün eklenemedi: ${errorData.message || 'Bilinmeyen hata'}`);
         }
       }
     } catch (error) {
       console.error('Error saving product:', error);
-      alert('Bir hata oluştu');
+      alert(`Bir hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
     } finally {
       setLoading(false);
     }
