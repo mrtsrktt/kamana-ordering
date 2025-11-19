@@ -32,7 +32,10 @@ export default async function handler(
       image: p.imageUrl,
       is_active: p.isActive,
       category: p.Category.name,
-      slug: p.slug
+      slug: p.slug,
+      minOrderQty: p.minOrderQty,
+      minOrderText: p.minOrderText,
+      suggestionText: p.suggestionText
     }));
     
     return res.status(200).json(transformedProducts);

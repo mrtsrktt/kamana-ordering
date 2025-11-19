@@ -22,7 +22,11 @@ export default async function handler(
         image: p.imageUrl,
         is_active: p.isActive,
         category: p.Category.name,
-        slug: p.slug
+        slug: p.slug,
+        minOrderQty: p.minOrderQty,
+        minOrderText: p.minOrderText,
+        suggestionText: p.suggestionText,
+        stock: p.stock
       }));
       
       return res.status(200).json(transformedProducts);
@@ -97,7 +101,11 @@ export default async function handler(
             description: updateData.description,
             price: updateData.price,
             imageUrl: updateData.image,
-            isActive: updateData.is_active
+            isActive: updateData.is_active,
+            minOrderQty: updateData.minOrderQty,
+            minOrderText: updateData.minOrderText,
+            suggestionText: updateData.suggestionText,
+            stock: updateData.stock
           }
         });
         

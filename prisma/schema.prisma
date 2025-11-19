@@ -8,21 +8,25 @@ datasource db {
 }
 
 model Product {
-  id          String      @id @default(cuid())
-  name        String
-  slug        String      @unique
-  description String
-  ingredients String?
-  price       Float
-  imageUrl    String
-  isActive    Boolean     @default(true)
-  isFeatured  Boolean     @default(false)
-  tags        String?
-  categoryId  String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  OrderItem   OrderItem[]
-  Category    Category    @relation(fields: [categoryId], references: [id])
+  id              String      @id @default(cuid())
+  name            String
+  slug            String      @unique
+  description     String
+  ingredients     String?
+  price           Float
+  imageUrl        String
+  isActive        Boolean     @default(true)
+  isFeatured      Boolean     @default(false)
+  tags            String?
+  categoryId      String
+  minOrderQty     Int?
+  minOrderText    String?
+  suggestionText  String?
+  stock           Int?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  OrderItem       OrderItem[]
+  Category        Category    @relation(fields: [categoryId], references: [id])
 
   @@index([categoryId])
   @@index([isActive, isFeatured])
