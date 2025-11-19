@@ -28,9 +28,10 @@ export default async function handler(
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
     const buffer = Buffer.from(base64Data, 'base64');
 
-    // Vercel Blob'a yükle
+    // Vercel Blob'a yükle (addRandomSuffix ile benzersiz dosya adı)
     const blob = await put(filename || `product-${Date.now()}.jpg`, buffer, {
       access: 'public',
+      addRandomSuffix: true,
     });
 
     res.status(200).json({ 
